@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
+import json
+from datetime import datetime
 
 # create app
 app = FastAPI(
@@ -19,6 +21,7 @@ except FileNotFoundError:
 # create prediction request model
 class PredictionRequest(BaseModel):
     text: str
+    true_sentiment: str
 
 # generate startup event
 @app.on_event("startup")
@@ -55,31 +58,26 @@ def predict(request: PredictionRequest):
     # predict sentiment
     try:
         prediction = model.predict([request.text])
+        
+        # create log entry
+        log = {
+            "timestamp": datetime.now(),
+            "request_text": request.text,
+            "predicted_sentiment": prediction[0],
+            "true_sentiment": request.true_sentiment
+        }
+        
+        # write log entry
+        with open("/logs/prediction_logs.json", "a") as f:
+            f.write(json.dumps(log) + "\n")
+
+        # return prediction
         return {"sentiment": prediction[0]}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error predicting sentiment: {e}")
 
-# create predict probability endpoint
-@app.post("/predict_proba")
-def predict_with_probabilities(request: PredictionRequest):
-    """
-    Predict probability endpoint to predict the probability of the sentiment of the provided review text.
-    Returns a JSON object with the predicted probability of the sentiment, and the predicted sentiment, "positive" or "negative"
-    """
-    # check if model is loaded
-    if model is None:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Model not loaded")
-
-    # predict sentiment with probabilities
-    try:
-        probabilities = model.predict_proba([request.text])
-        prediction = model.predict([request.text])
-        prob = probabilities[0][0] if prediction[0] == "negative" else probabilities[0][1]
-        return {"sentiment": prediction[0], "probability": prob}
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error predicting sentiment: {e}")
         
-# get training example endpoint
+# get training example endpoint - keeping as helper file for retrieving examples
 @app.get("/example")
 def example():
     """
