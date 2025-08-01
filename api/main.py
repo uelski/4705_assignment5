@@ -21,7 +21,7 @@ except FileNotFoundError:
 # create prediction request model
 class PredictionRequest(BaseModel):
     text: str
-    true_sentiment: str
+    true_label: str
 
 # generate startup event
 @app.on_event("startup")
@@ -64,9 +64,9 @@ def predict(request: PredictionRequest):
             "timestamp": datetime.now(),
             "request_text": request.text,
             "predicted_sentiment": prediction[0],
-            "true_sentiment": request.true_sentiment
+            "true_sentiment": request.true_label
         }
-        
+
         # write log entry
         with open("/logs/prediction_logs.json", "a") as f:
             f.write(json.dumps(log) + "\n")
@@ -75,24 +75,3 @@ def predict(request: PredictionRequest):
         return {"sentiment": prediction[0]}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error predicting sentiment: {e}")
-
-        
-# get training example endpoint - keeping as helper file for retrieving examples
-@app.get("/example")
-def example():
-    """
-    Training example endpoint to return a training example from the dataset
-    Returns a JSON object with the text of a random review from the IMDB csv file
-    """
-    try:
-        # Read the CSV file
-        df = pd.read_csv("IMDB Dataset.csv")
-        
-        # Get a random row
-        random_row = df.sample(n=1).iloc[0]
-        
-        return {
-            "review": random_row["review"]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error reading CSV file: {e}")
