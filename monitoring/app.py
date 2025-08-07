@@ -49,6 +49,7 @@ plt.xlabel("Sentence Length (word count)")
 plt.ylabel("Frequency")
 plt.title("Sentence Length Distribution Comparison")
 st.pyplot(plt)
+st.error("The Predicted Texts might not appear clearly if the POST /predict endpoint has not been hit many times.")
 
 # Target Drift Analysis: Create a bar chart showing the distribution of predicted sentiments from the logs vs trained sentiments
 st.subheader("Target Drift Analysis: Sentiment Distribution")
