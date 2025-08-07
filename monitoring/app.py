@@ -39,17 +39,29 @@ imdb_df = load_data()
 log_df = load_logs()
 
 # Data Drift Analysis: Create a histogram or density plot comparing the distribution of sentence lengths from your IMDB Dataset.csv against the lengths from the logged inference requests. 
-st.subheader("Histogram of Sentence Lengths")
+st.subheader("Sentence Length Distribution Comparison")
 
-plt.figure(figsize=(10, 5))
-plt.hist(log_df["sentence_length"], bins=50, alpha=0.5, label="Predicted Texts")
-plt.hist(imdb_df["sentence_length"], bins=50, alpha=0.5, label="IMDB Dataset")
-plt.legend()
-plt.xlabel("Sentence Length (word count)")
-plt.ylabel("Frequency")
-plt.title("Sentence Length Distribution Comparison")
-st.pyplot(plt)
-st.error("The Predicted Texts might not appear clearly if the POST /predict endpoint has not been hit many times.")
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+# IMDB Dataset histogram
+ax1.hist(imdb_df["sentence_length"], bins=50, color="skyblue", alpha=0.7)
+ax1.set_title("IMDB Dataset Sentence Lengths")
+ax1.set_ylabel("Count")
+ax1.set_xlim(0, 1000) 
+
+# Log Data histogram
+ax2.hist(log_df["sentence_length"], bins=25, color="salmon", alpha=0.7)
+ax2.set_title("Predicted Texts (Log Data) Sentence Lengths")
+ax2.set_xlabel("Sentence Length (word count)")
+ax2.set_ylabel("Count")
+ax2.set_xlim(0, 1000) 
+
+# Overall layout
+fig.tight_layout()
+fig.suptitle("Sentence Length Distribution - IMDB vs Logs", fontsize=14, y=1.02)
+
+st.pyplot(fig)
+
 
 # Target Drift Analysis: Create a bar chart showing the distribution of predicted sentiments from the logs vs trained sentiments
 st.subheader("Target Drift Analysis: Sentiment Distribution")
