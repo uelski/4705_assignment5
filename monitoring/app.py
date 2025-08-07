@@ -5,6 +5,9 @@ import os
 import pandas as pd
 from sklearn.metrics import accuracy_score, precision_score
 
+# show banner
+alert_placeholder = st.empty()
+
 # title and description
 st.title('Movie Review Sentiment Monitoring App')
 st.markdown("This app will be used to monitor the backend FastAPI application by plotting different data to help in analysing model performance.")
@@ -20,7 +23,7 @@ def load_data():
 def load_logs():
     if not os.path.exists("/logs/prediction_logs.json"):
         print("no log file")
-        return pd.DataFrame(columns=["sentence_length"])
+        return pd.DataFrame(columns=["sentence_length", "predicted_sentiment", "true_sentiment"])
     
     with open("/logs/prediction_logs.json", "r") as f:
         lines = [json.loads(line) for line in f if line.strip()]
@@ -75,8 +78,8 @@ y_true = log_df["true_sentiment"]
 y_pred = log_df["predicted_sentiment"]
 
 # compute metrics
-accuracy = accuracy_score(y_true, y_pred)
-precision = precision_score(y_true, y_pred)
+accuracy = accuracy_score(y_true, y_pred) if len(y_pred) > 0 else 0
+precision = precision_score(y_true, y_pred) if len(y_pred) > 0 else 0
 
 # display metrics
 st.metric("Accuracy:", f"{accuracy:.2%}")
@@ -84,4 +87,4 @@ st.metric("Precision:", f"{precision:.2%}")
 
 # Implement Alerting: If the calculated accuracy drops below 80%, display a prominent warning banner at the top of the dashboard using st.error().
 if accuracy < 0.80:
-    st.error(f"Warning: Model accuracy dropped to {accuracy:.2%}!")
+    alert_placeholder.error(f"Warning: Model accuracy dropped to {accuracy:.2%}!", icon="🚨")

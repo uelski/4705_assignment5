@@ -3,6 +3,4 @@ scikit-learn
 joblib
 streamlit
 datetime
-matplotlib.pyplot
-json
-os
+matplotlib
