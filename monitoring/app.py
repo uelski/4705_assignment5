@@ -3,6 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
+from sklearn.metrics import accuracy_score, precision_score
 
 # title and description
 st.title('Movie Review Sentiment Monitoring App')
@@ -47,7 +48,40 @@ plt.title("Sentence Length Distribution Comparison")
 st.pyplot(plt)
 
 # Target Drift Analysis: Create a bar chart showing the distribution of predicted sentiments from the logs vs trained sentiments
+st.subheader("Target Drift Analysis: Sentiment Distribution")
+
+# Count sentiment labels
+data_sentiments = imdb_df["sentiment"].value_counts(normalize=True)
+log_sentiments = log_df["predicted_sentiment"].value_counts(normalize=True)
+
+# Combine into a single DataFrame
+comparison_df = pd.DataFrame({
+    "Trained Sentiments": data_sentiments,
+    "Predicted Sentiments": log_sentiments
+}).fillna(0)
+
+# Bar chart
+comparison_df.plot(kind="bar", figsize=(8, 5))
+plt.title("Sentiment Label Distribution: Trained vs Predicted")
+plt.ylabel("Proportion")
+plt.xticks(rotation=0)
+st.pyplot(plt)
 
 # Model Accuracy & User Feedback: From the true_sentiment logged in the logs
 # Calculate and display the model's accuracy and precision based on all collected feedback.
+st.subheader("Model Accuracy and Precision")
+
+y_true = log_df["true_sentiment"]
+y_pred = log_df["predicted_sentiment"]
+
+# compute metrics
+accuracy = accuracy_score(y_true, y_pred)
+precision = precision_score(y_true, y_pred)
+
+# display metrics
+st.metric("Accuracy:", f"{accuracy:.2%}")
+st.metric("Precision:", f"{precision:.2%}")
+
 # Implement Alerting: If the calculated accuracy drops below 80%, display a prominent warning banner at the top of the dashboard using st.error().
+if accuracy < 0.80:
+    st.error(f"Warning: Model accuracy dropped to {accuracy:.2%}!")
