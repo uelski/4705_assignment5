@@ -61,7 +61,7 @@ def predict(request: PredictionRequest):
         
         # create log entry
         log = {
-            "timestamp": datetime.now(),
+            "timestamp": datetime.now().isoformat(),
             "request_text": request.text,
             "predicted_sentiment": prediction[0],
             "true_sentiment": request.true_label

@@ -1,6 +1,7 @@
 import json
 import requests
 from sklearn.metrics import accuracy_score
+import pandas as pd
 
 '''
 Create this script in the root directory of your project.
@@ -28,7 +29,7 @@ for item in test_data:
 
     try:
         # send POST with both text and true_label in body
-        response = requests.post("http://localhost:8000/predict", payload)
+        response = requests.post("http://localhost:8000/predict", json=payload)
 
         result = response.json()
         prediction = result.get("sentiment")
@@ -37,10 +38,12 @@ for item in test_data:
             y_true.append(item["true_label"])
             y_pred.append(prediction)
         else:
-            # print and throw error
+            # print error
+            print('error on prediction')
             pass
     except Exception as e:
-        # print and throw error
+        # print error
+        print('exception on post', e)
         pass
 
 # compute and print accuracy

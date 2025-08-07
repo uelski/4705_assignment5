@@ -12,14 +12,14 @@ alert_placeholder = st.empty()
 st.title('Movie Review Sentiment Monitoring App')
 st.markdown("This app will be used to monitor the backend FastAPI application by plotting different data to help in analysing model performance.")
 
-# cache data sources
+# cache data source only
 @st.cache_data
 def load_data():
     df = pd.read_csv("IMDB Dataset.csv")
     df["sentence_length"] = df["review"].astype(str).apply(lambda x: len(x.split()))
     return df
 
-@st.cache_data
+# don't cache logs
 def load_logs():
     if not os.path.exists("/logs/prediction_logs.json"):
         print("no log file")
@@ -42,8 +42,8 @@ log_df = load_logs()
 st.subheader("Histogram of Sentence Lengths")
 
 plt.figure(figsize=(10, 5))
+plt.hist(log_df["sentence_length"], bins=50, alpha=0.5, label="Predicted Texts")
 plt.hist(imdb_df["sentence_length"], bins=50, alpha=0.5, label="IMDB Dataset")
-plt.hist(log_df["sentence_length"], bins=50, alpha=0.5, label="Inference Logs")
 plt.legend()
 plt.xlabel("Sentence Length (word count)")
 plt.ylabel("Frequency")
@@ -79,7 +79,7 @@ y_pred = log_df["predicted_sentiment"]
 
 # compute metrics
 accuracy = accuracy_score(y_true, y_pred) if len(y_pred) > 0 else 0
-precision = precision_score(y_true, y_pred) if len(y_pred) > 0 else 0
+precision = precision_score(y_true, y_pred, pos_label="positive", average="binary", zero_division=0) if len(y_pred) > 0 else 0
 
 # display metrics
 st.metric("Accuracy:", f"{accuracy:.2%}")
