@@ -41,15 +41,12 @@ To get this app up and running Docker and python must be installed on your machi
 - Use Postman or curl commands to access and test the API endpoints.
 - Endpoint documentation can be accessed at http://127.0.0.1:8000/docs.
 - Navigate to http://localhost:8501/ to view the frontend streamlit app and associated visualizations.
-- When finished press Ctrl+C to stop the application from running.
 - Run 'make clean' to remove the Docker image.
 
 ## How To Test
 With Curl:<br>
 - `curl http://127.0.0.1:8000/health`
-- `curl -X POST http://127.0.0.1:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"text": "This movie was excellent!", "true_label": "positive"}'`
+- `curl -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d '{"text": "This movie was excellent!", "true_label": "positive"}'`
 
 With Postman:<br>
 - GET request
